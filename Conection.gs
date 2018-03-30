@@ -17,11 +17,11 @@
  *
  */
 
-var REDMINE_URL = 'https://redmine.domain.com';
+var REDMINE_URL = 'http://redmine.corporation-url-here.com';
 
-
-var API_ACCESS_KEY = 'api_access_key';
-var USERNAME = 'user'
+// TODO: this should be obtained from a configuration dialog.
+var API_ACCESS_KEY = 'api_access_key_here';
+var USERNAME = 'username_here'
 
 
 // HTTP Class
@@ -37,7 +37,7 @@ var HTTP = (function() {
     this.password = "";
   }
 
-  HTTP.prototype.Request = function(url, method) {
+  HTTP.prototype.Request = function(id,url_id,payload, method) {
 
     // Support for HTTP Basic Authentication.
     //let base64 = require('base-64');
@@ -49,13 +49,63 @@ var HTTP = (function() {
     'X-Redmine-Switch-User': USERNAME,
     'Content-Type': 'application/json',
     };
-
-    var options = {
-      "headers" : headers,
-      "method" : method,
-      "validateHttpsCertificates" : false,
-      "muteHttpExceptions": true,
+    
+    var url;
+    var options;
+    
+    if (method == "GET" ){
+    
+      url=url_id;
+      options = {
+       "headers" : headers,
+       "method" : method,
+       "validateHttpsCertificates" : false,
+       "muteHttpExceptions": true,
+      };
     };
+    
+    if (method == "POST" ){
+      
+     
+      url = REDMINE_URL+'/'+url_id+'.json';
+      options = {
+       'method': 'POST',
+       'headers': headers,
+       'payload': payload,
+       'contentType': 'application/json',
+       //'muteHttpExceptions': true
+      };
+     //Logger.log(payload);
+    };
+      
+     if (method == "PUT" ){
+      
+      
+      url = REDMINE_URL+'/'+url_id+'/'+id+'.json';
+      options = {
+       'method': 'PUT',
+       'headers': headers,
+       'payload': payload,
+       'contentType': 'application/json',
+       //'muteHttpExceptions': true
+      };
+      //Logger.log(payload);
+    };
+    
+    if (method == "DELETE" ){
+      
+      
+      url = REDMINE_URL+'/'+url_id+'/'+id+'.json';
+      options = {
+       'method': 'DELETE',
+       'headers': headers,
+       'payload': payload,
+       'contentType': 'application/json',
+       //'muteHttpExceptions': true
+      };
+      //Logger.log(payload);
+    };
+   
 
     var content = UrlFetchApp.fetch(url, options);
 
@@ -63,15 +113,19 @@ var HTTP = (function() {
   };
 
   HTTP.prototype.Get = function (url) {
-    return this.Request(url, "GET");
+    return this.Request(null,url,null,"GET");
   };
 
-  HTTP.prototype.Post = function (url) {
-    return this.Request(url, "POST");
+  HTTP.prototype.Post = function (url_id,payload) {
+    return this.Request(null,url_id, payload, "POST");
   };
 
-  HTTP.prototype.Put = function (url) {
-    return this.Request(url, "PUT");
+  HTTP.prototype.Put = function (type_id,url_id,payload) {
+    return this.Request(type_id,url_id,payload, "PUT");
+  };
+  
+  HTTP.prototype.Delete = function (type_id,url_id,payload) {
+    return this.Request(type_id,url_id,payload, "DELETE");
   };
 
   HTTP.prototype.SetAuth = function (username, password) {
@@ -213,7 +267,11 @@ var Redmine = (function() {
       var result = {};
       var root = doc.getRootElement();
     
-      var entries = root.getAttribute('total_count').getValue();
+      var entries = 0;
+      
+      if (root.getAttribute('total_count') != null){
+          var entries = root.getAttribute('total_count').getValue();
+      }
      
       var pages = Math.floor((entries / this.ITEMS_BY_PAGE) + 1);
      
@@ -232,7 +290,6 @@ var Redmine = (function() {
         var data = [];
         var xml_content = this.http.Get(url);
        // Logger.log(xml_content);
-       
 
         var elements_data = null;
         
@@ -274,7 +331,6 @@ var Redmine = (function() {
             elements_data = this.translator.xmlToJS(xml_content.getContentText());
             this.cache.set(url, elements_data);
           }
-
           
         }
         
@@ -348,41 +404,194 @@ var Redmine = (function() {
     
     return data;
   };
+  
 
+  Redmine.prototype.issueCreate = function (issue) {
 
-  
-  Redmine.prototype.issueUpdate = function (issue_id, start_date, due_date) {
-  //TODO: Update Issue 
-   
-  };
-  
-  
-  Redmine.prototype.issueCreate = function (project_id, issue) {
-  //TODO: Create Issue
   var payload = {
-    'issue': issue, 
-    'project_id': project_id,
-  };
-  payload = JSON.stringify(payload);
-  var headers = {
-    'X-Redmine-API-Key': API_ACCESS_KEY,
-    'X-Redmine-Switch-User': USERNAME,
-    'Content-Type': 'application/json',
-  };
-  var options = {
-    'method': 'POST',
-    'headers': headers,
-    'payload': payload,
-    'contentType': 'application/json',
-    //'muteHttpExceptions': true
-  };
-  Logger.log(payload);
-  var response = UrlFetchApp.fetch(REDMINE_URL, options);
-  //Logger.log(response);
+    "issue": issue, 
+    "key": API_ACCESS_KEY
+  }
+
+  var payload = JSON.stringify(payload);
   
-  return response;
+  var xml_content = this.http.Post('issues',payload);    
+ 
+  var elements_data = JSON.parse(xml_content.getContentText());
+  
+  //Logger.log(elements_data);
+ 
+  return elements_data;
+  };
+  
+
+  Redmine.prototype.issueUpdate = function (issue_id,issue) {
+   var payload = {
+    "issue": issue, 
+    "key": API_ACCESS_KEY
+  }
+
+  var payload = JSON.stringify(payload);
+  
+  var xml_content = this.http.Put(issue_id,'issues',payload);
+  
+  var url = REDMINE_URL + '/issues';
+ 
+ var data = this.getData(url, issue_id);
+
+  Logger.log(data);
+ 
+  return data; 
+  };
+  
+  
+    Redmine.prototype.projectCreate = function (project) {
+
+  var payload = {
+    "project" : project, 
+    "key": API_ACCESS_KEY
+  }
+
+  var payload = JSON.stringify(payload);
+  
+  var xml_content = this.http.Post('projects',payload);    
+ 
+  var elements_data = JSON.parse(xml_content.getContentText());
+  
+  //Logger.log(elements_data);
+ 
+  return elements_data;
+  };
+  
+
+  Redmine.prototype.projectUpdate = function (project_id,project) {
+   var payload = {
+    "project" : project, 
+    "key": API_ACCESS_KEY
+  }
+
+  var payload = JSON.stringify(payload);
+  
+  var xml_content = this.http.Put(project_id,'projects',payload);
+  
+  var url = REDMINE_URL + '/projects';
+ 
+ var data = this.getData(url, project_id);
+
+  Logger.log(data);
+ 
+  return data; 
+  };
+  
+  
+  Redmine.prototype.categoryCreate = function (project_id,issue_category) {
+
+  var payload = {
+    "issue_category" : issue_category, 
+    "key": API_ACCESS_KEY
+  }
+
+  var payload = JSON.stringify(payload);
+  
+  var xml_content = this.http.Post('projects/'+project_id+'/issue_categories',payload);    
+ 
+  var elements_data = JSON.parse(xml_content.getContentText());
+  
+  //Logger.log(elements_data);
+ 
+  return elements_data;
+  };
+  
+
+  Redmine.prototype.categoryUpdate = function (category_id,issue_category) {
+   var payload = {
+    "issue_category" : issue_category, 
+    "key": API_ACCESS_KEY
+  }
+
+  var payload = JSON.stringify(payload);
+  
+  var xml_content = this.http.Put(category_id,'issue_categories',payload);
+  
+   var url = REDMINE_URL + '/issue_categories';
+ 
+   var data = this.getData(url, category_id);
+
+  Logger.log(data);
+ 
+  return data; 
+  };
+  
+ 
+
+Redmine.prototype.categoryDelete = function (category_id,issue_category) {
+   var payload = {
+    "issue_category" : issue_category, 
+    "key": API_ACCESS_KEY
+  }
+
+  var payload = JSON.stringify(payload);
+  
+  var xml_content = this.http.Delete(category_id,'issue_categories',payload);
+ 
+  Logger.log(xml_content);
+ 
+  return xml_content; 
   };
 
+ Redmine.prototype.membershipCreate = function (project_id,membership) {
+
+  var payload = {
+    "membership" : membership, 
+    "key": API_ACCESS_KEY
+  }
+
+  var payload = JSON.stringify(payload);
+  
+  var xml_content = this.http.Post('projects/'+project_id+'/memberships',payload);    
+ 
+  var elements_data = JSON.parse(xml_content.getContentText());
+  
+  //Logger.log(elements_data);
+ 
+  return elements_data;
+  };
+  
+  
+  Redmine.prototype.membershipUpdate = function (membership_id,membership) {
+   var payload = {
+    "membership" : membership, 
+    "key": API_ACCESS_KEY
+  }
+
+  var payload = JSON.stringify(payload);
+  
+  var xml_content = this.http.Put(membership_id,'memberships',payload);
+  
+   var url = REDMINE_URL + '/memberships';
+ 
+   var data = this.getData(url, membership_id);
+
+  Logger.log(data);
+ 
+  return data; 
+  };
+  
+    Redmine.prototype.membershipDelete = function (membership_id,membership) {
+   var payload = {
+    "membership" : membership, 
+    "key": API_ACCESS_KEY
+  }
+
+  var payload = JSON.stringify(payload);
+  
+  var xml_content = this.http.Delete(membership_id,'memberships',payload);
+  
+  Logger.log(xml_content);
+ 
+  return xml_content; 
+  };
+  
   return Redmine;
 
 })();

@@ -27,14 +27,36 @@ function onOpen() {
 }
 
 
-//TODO CreateProject
+CreateProject
 function CreateProject () {
   Browser.msgBox("Create Project in Redmine");
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName("NAME_SHEET");
   var redmine_name_id =  sheet.getRange("GET_VALUE_FROM_SHEET").getValues();
   
-  CreateRedmineProject(redmine_name_id);
+  var project = {
+    'name': 'Proyect 1',
+    'identifier': 'proyect-one',
+    'description': 'realizando pruebas de proyectos',
+    'parent_id': 73, // PROJECT_ID (PARENT)
+    'status': 1,
+    'custom_fields':[{'id':18,'name':'Custom Fields 1','value':'Others'},
+                     {'id':26,'name':'Custom Fields 2':'XX-YYY'},
+                     {'id':43,'name':'Custom Fields 3','value':''},
+                     {'id':277,'name':'Custom Fields 4','value':'48'}],
+                     
+    'enabled_module_names': [
+                           'issue_tracking',
+                           'time_tracking'
+                            ],
+   
+     'tracker_ids': [
+                   2, //'name':'Tasks'
+                   1  //'name':'Errors'
+                   ]                     
+     };
+
+  var numID = CreateProjects(project);
   
 }
 
@@ -88,8 +110,26 @@ function UpdateRedmineIdCategory () {
 
 
 
-// TODO AddIssues
+
 function AddIssues () {
   Browser.msgBox("ADD ISSUES IN REDMINE");
+
+     var issue = {
+    'subject': 'Updated 2 This is a test ticket created by fperez',
+    'description': 'Updated 2 This is genius!',
+    'is_private' : 'true', // 'false' or 'true'
+    'project_id': PROJECT_ID,
+    'category_id': CATEGORY_ID, 
+    'status_id': 1,
+    'assigned_to_id': USERNAME_ID,
+    'tracker_id': TRACKER_ID,
+    'start_date': '2018-03-24',
+    'estimated_hours':'2.7',
+    'due_date': '2018-07-31' 
+  };
+
+
+  var numID = CreateIssues(issue);
+
 }
 
