@@ -259,7 +259,7 @@ function CreateTime_Entry(time_entry) {
   var num = 0;
                       
   var redmine = new Redmine();
-  var response = redmine.categoryCreate(time_entry['issue_id'],time_entry);
+  var response = redmine.time_entryCreate(time_entry['issue_id'],time_entry);
 
   if (response==null){
     Browser.msgBox("the time_entry is incorrect!"); 
@@ -285,7 +285,7 @@ function CreateTime_Entry(time_entry) {
 function UpdateTime_Entry(time_entry_id,time_entry) {
 
   var redmine = new Redmine();
-  var response = redmine.categoryUpdate(time_entry_id,time_entry);
+  var response = redmine.time_entryUpdate(time_entry_id,time_entry);
 
   //Logger.log('Time_entry Id '+time_entry_id+' Updated');
   return time_entry_id;
@@ -296,10 +296,11 @@ function DeleteTime_Entry(time_entry_id) {
   
   var redmine = new Redmine();
   var time_entry ={'id':time_entry_id} ;
-  var response = redmine.categoryDelete(time_entry_id,time_entry);
+  var response = redmine.time_entryDelete(time_entry_id,time_entry);
 
   //Logger.log('Time_entry Id '+time_entry_id+' Deleted');
   return time_entry_id;
  
 }
+
 
