@@ -28,6 +28,10 @@ var USERNAME = //'your_user_name';
 var USERNAME_ID = //'your_user_id';
 var ROL_ID = //'your_rol_id'; 
 var MEMBERSHIP_ID =   //'your_membership_id';
+var ACTIVITY_ID = //your_values;
+var TIME_VALUE = //your_values;
+var DATE_VALUE = //your_values;
+var TIME_ENTRY_ID= //your_values;
 
 // Redmine class tests
 
@@ -179,6 +183,24 @@ function redmine_issueUpdate() {
   Logger.log('Issue Updated Id: '+ISSUE_ID);
   
 }  
+
+function redmine_issueDelete() {
+               
+  var issue = {'id':ISSUE_ID //,
+                        //'project_id':PROJECT_ID,
+                        //'name':'Sistemas',
+                        //'assigned_to_id':USERNAME_ID
+                        };
+  
+  
+  var redmine = new Redmine();
+  var response = redmine.issueDelete(ISSUE_ID,issue);
+
+
+  //var  num = redmine.translator.searchTag(response, 'id');
+  Logger.log('ISSUE Id '+ISSUE_ID+' Deleted from Project '+PROJECT_ID);
+    
+  }
   
   function redmine_projectCreate() {
 
@@ -361,6 +383,67 @@ function redmine_membershipUpdate() {
   
   
   }
+
+ function redmine_time_entryCreate() {
+               
+  var time_entry = {
+                        'project_id':PROJECT_ID,
+                        'issue_id':ISSUE_ID,
+                        'activity_id': ACTIVITY_ID,
+                        'user_id': USERNAME_ID,
+                        'hours': TIME_VALUE,
+                        'spent_on': DATE_VALUE
+                        };
+  
+  
+  var redmine = new Redmine();
+  var response = redmine.time_entryCreate(ISSUE_ID,time_entry);
+
+  var  num = redmine.translator.searchTag(response, 'id');
+  Logger.log('time_entry Id '+num);
+  
+  
+  }
+
+function redmine_time_entryUpdate() {
+               
+  var time_entry = {'id':TIME_ENTRY_ID,
+                        'project_id':PROJECT_ID,
+                        'issue id':ISSUE_ID,
+                        'activity_id': 8,
+                        'user_id': USERNAME_ID,
+                        'hours': 4,
+                        'spent_on': DATE_VALUE
+                        };
+  
+  
+  var redmine = new Redmine();
+  var response = redmine.time_entryUpdate(TIME_ENTRY_ID,time_entry);
+
+  //var  num = redmine.translator.searchTag(response, 'id');
+  Logger.log('Category Id '+TIME_ENTRY_ID+' Updated ISSUE Id: '+ISSUE_ID);
+  
+  
+  }
+  
+ function redmine_time_entryDelete() {
+               
+  var time_entry = {'id':TIME_ENTRY_ID //,
+                        //'project_id':PROJECT_ID,
+                        //'name':'Sistemas',
+                        //'assigned_to_id':USERNAME_ID
+                        };
+  
+  
+  var redmine = new Redmine();
+  var response = redmine.time_entryDelete(TIME_ENTRY_ID,time_entry);
+
+
+  //var  num = redmine.translator.searchTag(response, 'id');
+  Logger.log('Category Id '+TIME_ENTRY_ID+' Deleted ');
+    
+  }
+  
   
   
   

@@ -255,3 +255,51 @@ function DeleteMembership(membership_id) {
  
 }
 
+function CreateTime_Entry(time_entry) {
+  var num = 0;
+                      
+  var redmine = new Redmine();
+  var response = redmine.categoryCreate(time_entry['issue_id'],time_entry);
+
+  if (response==null){
+    Browser.msgBox("the time_entry is incorrect!"); 
+  }else{ 
+  var  num = redmine.translator.searchTag(response, 'id');
+  
+  }
+  //Logger.log("Time entry Id: "+num);
+  return num;
+ 
+}
+
+/*
+  var time_entry = {'id':TIME_ENTRY_ID,
+                        'project_id':PROJECT_ID,
+                        'issue id':ISSUE_ID,
+                        'activity_id': 8,
+                        'user_id': USERNAME_ID,
+                        'hours': 4,
+                        'spent_on': DATE_VALUE
+                        };
+*/
+function UpdateTime_Entry(time_entry_id,time_entry) {
+
+  var redmine = new Redmine();
+  var response = redmine.categoryUpdate(time_entry_id,time_entry);
+
+  //Logger.log('Time_entry Id '+time_entry_id+' Updated');
+  return time_entry_id;
+ 
+}
+
+function DeleteTime_Entry(time_entry_id) {
+  
+  var redmine = new Redmine();
+  var time_entry ={'id':time_entry_id} ;
+  var response = redmine.categoryDelete(time_entry_id,time_entry);
+
+  //Logger.log('Time_entry Id '+time_entry_id+' Deleted');
+  return time_entry_id;
+ 
+}
+

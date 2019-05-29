@@ -592,6 +592,60 @@ Redmine.prototype.categoryDelete = function (category_id,issue_category) {
   return xml_content; 
   };
   
+ Redmine.prototype.time_entryCreate = function (issue_id,time_entry) {
+
+  var payload = {
+    "time_entry" : time_entry, 
+    "key": API_ACCESS_KEY
+  }
+
+  var payload = JSON.stringify(payload);
+  
+  var xml_content = this.http.Post('issues/'+issue_id+'/time_entries',payload);    
+ 
+  var elements_data = JSON.parse(xml_content.getContentText());
+  
+  //Logger.log(elements_data);
+ 
+  return elements_data;
+  };
+  
+    Redmine.prototype.time_entryUpdate = function (time_entry_id,time_entry) {
+   var payload = {
+    "time_entry" : time_entry, 
+    "key": API_ACCESS_KEY
+  }
+
+  var payload = JSON.stringify(payload);
+  
+  var xml_content = this.http.Put(time_entry_id,'time_entries',payload);
+  
+   var url = REDMINE_URL + '/time_entries';
+ 
+   var data = this.getData(url, time_entry_id);
+
+  //Logger.log(data);
+ 
+  return data; 
+  };
+  
+ 
+
+Redmine.prototype.time_entryDelete = function (time_entry_id,time_entry) {
+   var payload = {
+    "time_entry" : time_entry, 
+    "key": API_ACCESS_KEY
+  }
+
+  var payload = JSON.stringify(payload);
+  
+  var xml_content = this.http.Delete(time_entry_id,'time_entries',payload);
+ 
+  Logger.log(xml_content);
+ 
+  return xml_content; 
+  };
+
   return Redmine;
 
 })();
