@@ -646,6 +646,69 @@ Redmine.prototype.time_entryDelete = function (time_entry_id,time_entry) {
   return xml_content; 
   };
 
+  Redmine.prototype.getVersions = function (project_id) {
+    Logger.log("Launching getVersions (" + project_id + ")");
+    
+    var url = REDMINE_URL + '/projects/' + project_id + '/versions.xml';
+    var data= this.getDataElement(url, 'versions');
+
+    return data;
+  };
+  
+  Redmine.prototype.versionCreate = function (project_id,version) {
+
+  var payload = {
+    "version" : version, 
+    "key": API_ACCESS_KEY
+  }
+
+  var payload = JSON.stringify(payload);
+  
+  Logger.log("payload: "+payload);
+  
+  var xml_content = this.http.Post('projects/'+project_id+'/versions',payload);    
+ 
+  var elements_data = JSON.parse(xml_content.getContentText());
+  
+  Logger.log(elements_data);
+ 
+  return elements_data;
+  };
+  
+  Redmine.prototype.versionUpdate = function (version_id,version) {
+   var payload = {
+    "version" : version, 
+    "key": API_ACCESS_KEY
+  }
+
+  var payload = JSON.stringify(payload);
+  
+  var xml_content = this.http.Put(version_id,'versions',payload);
+  
+   var url = REDMINE_URL + '/versions';
+ 
+   var data = this.getData(url, version_id);
+
+  //Logger.log(data);
+ 
+  return data; 
+  };
+  
+    Redmine.prototype.versionDelete = function (version_id,version) {
+   var payload = {
+    "version" : version, 
+    "key": API_ACCESS_KEY
+  }
+
+  var payload = JSON.stringify(payload);
+  
+  var xml_content = this.http.Delete(version_id,'versions',payload);
+  
+  //Logger.log(xml_content);
+ 
+  return xml_content; 
+  };
+
   return Redmine;
 
 })();

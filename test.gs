@@ -32,6 +32,9 @@ var ACTIVITY_ID = //your_values;
 var TIME_VALUE = //your_values;
 var DATE_VALUE = //your_values;
 var TIME_ENTRY_ID= //your_values;
+var VERSION_ID= //your_values;
+var VERSION_NAME = //your_values;
+var VERSION_DESCRIPTION = //your_values;
 
 // Redmine class tests
 
@@ -444,7 +447,57 @@ function redmine_time_entryUpdate() {
     
   }
   
+function redmine_getVersions() {
+  var redmine = new Redmine();
+  var response = redmine.getVersions(PROJECT_NOM);
   
+  var num=redmine.translator.searchTag(response, 'total_count');
+  Logger.log('response: ' + num);
+  Logger.log(response);
+}
   
+function redmine_versionCreate() {
+            
+  var versions = {'project_id': PROJECT_ID,
+                  'name':  VERSION_NAME, 
+                  'description': VERSION_DESCRIPTION             
+                  };
+
+  var redmine = new Redmine();
+  var response = redmine.versionCreate(versions['project_id'],versions);
   
+  if (response==null){
+    Browser.msgBox("the issue_version is incorrect!"); 
+  }else{ 
+  var  num = redmine.translator.searchTag(response, 'id');
   
+  }
+
+  Logger.log('version Id '+num); 
+}
+  
+function redmine_versionUpdate() {
+               
+  var versions = {'id':VERSION_ID,
+                  //'project_id':PROJECT_ID,
+                  'name': VERSION_NAME //name
+                 };
+  
+  var redmine = new Redmine();
+  var response = redmine.versionUpdate(VERSION_ID,versions);
+
+  Logger.log('version Id '+VERSION_ID+' Updated Project Id: '+PROJECT_ID);
+}
+  
+function redmine_versionDelete() {
+               
+  var versions = {'id': VERSION_ID
+                   //'project_id':PROJECT_ID,
+                   //'name': VERSION_NAME
+                  };
+ 
+  var redmine = new Redmine();
+  var response = redmine.versionDelete(VERSION_ID,versions);
+
+  Logger.log('version Id '+VERSION_ID+' Deleted Project Id: '+PROJECT_ID);
+}

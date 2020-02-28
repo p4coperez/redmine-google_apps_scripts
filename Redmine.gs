@@ -1,7 +1,7 @@
 /*
  * Connector to Redmine from Google Apps Scripts platform.
  *
- * Copyright (c) 2018 Emergya
+ * Copyright (c) 2020 Emergya
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -303,4 +303,75 @@ function DeleteTime_Entry(time_entry_id) {
  
 }
 
+function  GetRedmineIdNumByVersionId(redmine_nombre_id,redmine_version_name) {
+
+  var redmine = new Redmine();
+  var response = redmine.getVersions(redmine_nombre_id);
+  var redmine_version_id  = null; 
+  var result = null;
+  
+  if (response!=null){
+  
+    var vistazo=redmine.translator.searchTag(response, 'version');
+
+    for (var i in vistazo) {
+       //Logger.log(vistazo[i]);
+       if (vistazo[i]['name'].Text == redmine_version_name){
+         result = vistazo[i]['id'];
+           //Logger.log(vistazo[i]['id']);
+       } 
+    }
+  }
+   
+  if (result != null){
+      redmine_version_id =result.Text;
+     // Logger.log(result.Text);
+  }
+      
+  return redmine_version_id;
+}
+
+function CreateVersion(issue_version) {
+  var num = 0;                  
+  var redmine = new Redmine();
+  var response = redmine.versionCreate(issue_version['project_id'],issue_version);
+
+  if (response==null){
+    Browser.msgBox("the issue_version is incorrect!"); 
+  }else{ 
+    num = redmine.translator.searchTag(response, 'id');
+  
+  }
+  //Logger.log("version Id: "+num);
+  return num;
+}
+
+/*
+ var issue_version = {
+                        //'id':VERSION_ID,
+                        'project_id':PROJECT_ID,
+                        'name': VERSION_NAME
+                        };
+*/
+
+function UpdateVersion(version_id,issue_version) {
+
+  var redmine = new Redmine();
+  var response = redmine.versionUpdate(version_id,issue_version);
+
+  //Logger.log('version Id '+version_id+' Updated');
+  return version_id;
+ 
+}
+
+function DeleteVersion(version_id) {
+  
+  var redmine = new Redmine();
+  var issue_version ={'id':version_id} ;
+  var response = redmine.versionDelete(version_id,issue_version);
+
+  //Logger.log('version Id '+version_id+' Deleted');
+  return version_id;
+ 
+}
 
