@@ -1,7 +1,7 @@
 /*
  * Connector to Redmine from Google Apps Scripts platform.
  *
- * Copyright (c) 2018 Emergya
+ * Copyright (c) 2020 Emergya
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -340,35 +340,8 @@ var Redmine = (function() {
       
   }
 
-  Redmine.prototype.getIssues = function (project_id) {
-    Logger.log("Launching getIssues(" + project_id + ")");
-    
-    var url = REDMINE_URL + '/issues.xml?project_id=' + project_id + '&status_id=*';
-    var data = this.getData(url, '');
-    
-    return data;
-  };
-
-  Redmine.prototype.getProjects = function () {
-    Logger.log("Launching getProjects()");
-    
-    var url = REDMINE_URL;
-    var data = this.getData(url, 'projects');
-    
-    return data;
-  };
-
-  Redmine.prototype.getProject = function (project_id) {
-    Logger.log("Launching getProject(" + project_id + ")");
-    
-    var url = REDMINE_URL + '/projects/' + project_id + '.xml';
-    var data= this.getDataElement(url, 'project');
-
-    return data;
-  };
-
   Redmine.prototype.getTimeEntries = function (project_id) {
-    Logger.log("Launching getTimeEntries(" + project_id + ")");
+    //Logger.log("Launching getTimeEntries(" + project_id + ")");
     
     var url_base = REDMINE_URL + '/projects/' + project_id;
     var data = this.getData(url_base, 'time_entries');
@@ -376,18 +349,9 @@ var Redmine = (function() {
     return data;
   };
   
-  Redmine.prototype.getCategory = function (project_id) {
-    Logger.log("Launching getCategory (" + project_id + ")");
-    
-    var url = REDMINE_URL + '/projects/' + project_id;
-    var data = this.getData(url, 'issue_categories');
-
-    return data;
-  };
-  
   
   Redmine.prototype.getTimeEntriesByIssue = function (project_name_id, issue_id) {
-    Logger.log("Launching getIssuesByTracker("+project_name_id+","+issue_id+")");
+    //Logger.log("Launching getIssuesByTracker("+project_name_id+","+issue_id+")");
     
     var url = REDMINE_URL + '/issues/' + issue_id ;
     var data = this.getData(url, 'time_entries');
@@ -397,7 +361,7 @@ var Redmine = (function() {
     
     
   Redmine.prototype.getIssuesByTracker = function (project_name_id, tracker_id) {
-    Logger.log("Launching getIssuesByTracker("+project_name_id+","+tracker_id+")");
+    //Logger.log("Launching getIssuesByTracker("+project_name_id+","+tracker_id+")");
     
     var url = REDMINE_URL + '/issues.xml?project_id=' + project_name_id + '&tracker_id='+ tracker_id + '&status_id=*';
     var data = this.getData(url, '');
@@ -405,6 +369,34 @@ var Redmine = (function() {
     return data;
   };
   
+  // CRUD Connections API
+  
+Redmine.prototype.getIssue = function (issue_id) {
+    //Logger.log("Launching getIssue(" + issue_id + ")");
+    
+    var url = REDMINE_URL + '/issues/' + issue_id + '.xml';
+    var data= this.getDataElement(url, 'issue');
+
+    return data;
+  };
+  
+  Redmine.prototype.getIssues = function (project_id) {
+    //Logger.log("Launching getIssues(" + project_id + ")");
+    
+    var url = REDMINE_URL + '/issues.xml?project_id=' + project_id + '&status_id=*';
+    var data = this.getData(url, '');
+    
+    return data;
+  };
+  
+  Redmine.prototype.getIssuesBySubject = function (project_id,subject) {
+    //Logger.log("Launching getIssues(" + project_id + ")");
+    
+    var url = REDMINE_URL + '/issues.xml?project_id=' + project_id + '&subject=' + subject+'&status_id=*';
+    var data = this.getData(url, '');
+    
+    return data;
+  };
 
   Redmine.prototype.issueCreate = function (issue) {
 
@@ -439,11 +431,45 @@ var Redmine = (function() {
  
  var data = this.getData(url, issue_id);
 
-  Logger.log(data);
+  //Logger.log(data);
  
   return data; 
   };
   
+ 
+  Redmine.prototype.issueDelete = function (issue_id,issue) {
+   var payload = {
+    "issue" : issue, 
+    "key": API_ACCESS_KEY
+  }
+
+  var payload = JSON.stringify(payload);
+  
+  var xml_content = this.http.Delete(issue_id,'issues',payload);
+ 
+  //Logger.log(xml_content);
+ 
+  return xml_content; 
+  };
+  
+  
+    Redmine.prototype.getProject = function (project_id) {
+    //Logger.log("Launching getProject(" + project_id + ")");
+    
+    var url = REDMINE_URL + '/projects/' + project_id + '.xml';
+    var data= this.getDataElement(url, 'project');
+
+    return data;
+  };
+  
+  Redmine.prototype.getProjects = function () {
+    //Logger.log("Launching getProjects()");
+    
+    var url = REDMINE_URL;
+    var data = this.getData(url, 'projects');
+    
+    return data;
+  };
   
     Redmine.prototype.projectCreate = function (project) {
 
@@ -478,12 +504,46 @@ var Redmine = (function() {
  
  var data = this.getData(url, project_id);
 
-  Logger.log(data);
+  //Logger.log(data);
  
   return data; 
   };
   
+  Redmine.prototype.projectDelete = function (project_id,project) {
+   var payload = {
+    "project" : project, 
+    "key": API_ACCESS_KEY
+  }
+
+  var payload = JSON.stringify(payload);
   
+  var xml_content = this.http.Delete(project_id,'projects',payload);
+ 
+  //Logger.log(xml_content);
+ 
+  return xml_content; 
+  };
+  
+  
+  Redmine.prototype.getCategory = function (category_id) {
+    //Logger.log("Launching getCategory (" + category_id + ")");
+    
+    var url = REDMINE_URL + '/issue_categories/' + category_id;
+    var data = this.getData(url, 'issue_category');
+
+    return data;
+  };
+  
+  
+  Redmine.prototype.getCategories = function (project_id) {
+    //Logger.log("Launching getCategories (" + project_id + ")");
+    
+    var url = REDMINE_URL + '/projects/' + project_id + '/issue_categories.xml';
+    var data= this.getDataElement(url, 'issue_categories');
+
+    return data;
+  };
+
   Redmine.prototype.categoryCreate = function (project_id,issue_category) {
 
   var payload = {
@@ -502,7 +562,7 @@ var Redmine = (function() {
   return elements_data;
   };
   
-
+  
   Redmine.prototype.categoryUpdate = function (category_id,issue_category) {
    var payload = {
     "issue_category" : issue_category, 
@@ -517,7 +577,7 @@ var Redmine = (function() {
  
    var data = this.getData(url, category_id);
 
-  Logger.log(data);
+  //Logger.log(data);
  
   return data; 
   };
@@ -534,9 +594,18 @@ Redmine.prototype.categoryDelete = function (category_id,issue_category) {
   
   var xml_content = this.http.Delete(category_id,'issue_categories',payload);
  
-  Logger.log(xml_content);
+  //Logger.log(xml_content);
  
   return xml_content; 
+  };
+  
+ Redmine.prototype.getMemberships = function (project_id) {
+    //Logger.log("Launching getMemberships (" + project_id + ")");
+    
+    var url = REDMINE_URL + '/projects/' + project_id + '/memberships.xml';
+    var data= this.getDataElement(url, 'memberships');
+
+    return data;
   };
 
  Redmine.prototype.membershipCreate = function (project_id,membership) {
@@ -572,7 +641,7 @@ Redmine.prototype.categoryDelete = function (category_id,issue_category) {
  
    var data = this.getData(url, membership_id);
 
-  Logger.log(data);
+  //Logger.log(data);
  
   return data; 
   };
@@ -587,12 +656,23 @@ Redmine.prototype.categoryDelete = function (category_id,issue_category) {
   
   var xml_content = this.http.Delete(membership_id,'memberships',payload);
   
-  Logger.log(xml_content);
+  //Logger.log(xml_content);
  
   return xml_content; 
   };
   
- Redmine.prototype.time_entryCreate = function (issue_id,time_entry) {
+  
+  
+  Redmine.prototype.getTime_Entries = function (issue_id) {
+    //Logger.log("Launching getVersions (" + project_id + ")");
+    
+    var url = REDMINE_URL + '/issues/' + issue_id + '/time_entries.xml';
+    var data= this.getDataElement(url, 'time_entries');
+
+    return data;
+  };
+  
+  Redmine.prototype.time_entryCreate = function (issue_id,time_entry) {
 
   var payload = {
     "time_entry" : time_entry, 
@@ -641,13 +721,14 @@ Redmine.prototype.time_entryDelete = function (time_entry_id,time_entry) {
   
   var xml_content = this.http.Delete(time_entry_id,'time_entries',payload);
  
-  Logger.log(xml_content);
+  //Logger.log(xml_content);
  
   return xml_content; 
   };
-
+  
+  
   Redmine.prototype.getVersions = function (project_id) {
-    Logger.log("Launching getVersions (" + project_id + ")");
+    //Logger.log("Launching getVersions (" + project_id + ")");
     
     var url = REDMINE_URL + '/projects/' + project_id + '/versions.xml';
     var data= this.getDataElement(url, 'versions');
@@ -664,13 +745,13 @@ Redmine.prototype.time_entryDelete = function (time_entry_id,time_entry) {
 
   var payload = JSON.stringify(payload);
   
-  Logger.log("payload: "+payload);
+  //Logger.log("payload: "+payload);
   
   var xml_content = this.http.Post('projects/'+project_id+'/versions',payload);    
  
   var elements_data = JSON.parse(xml_content.getContentText());
   
-  Logger.log(elements_data);
+  //Logger.log(elements_data);
  
   return elements_data;
   };
