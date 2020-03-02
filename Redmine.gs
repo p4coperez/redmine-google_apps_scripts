@@ -133,9 +133,7 @@ function GetRedmineIdNumByProjectId(redmine_project_name_id) {
   var redmine = new Redmine();
   var response = redmine.getProject(redmine_project_name_id);
 
-  if (response==null){
-    Browser.msgBox("the issue_project is incorrect!"); 
-  }else{ 
+  if (response!=null){
     num  = redmine.translator.searchTag(response, 'id').Text;
   }
   return num;
